@@ -104,6 +104,7 @@ public class ArrayDeque<T> {
             return first[fsize-index-1];
         }
         return last[index-fsize];
+
     }
 
     public T[] resize(int s,T[] array){
