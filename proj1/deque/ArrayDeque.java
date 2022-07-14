@@ -96,9 +96,15 @@ public class ArrayDeque<T> {
         return res;
     }
 
-    /**public T get(int index){
-
-    }**/
+    public T get(int index){
+        if(fsize+lsize == 0 || index+1 > fsize+lsize){
+            return null;
+        }
+        if(fsize <= index+1){
+            return first[fsize-index-1];
+        }
+        return last[index-fsize];
+    }
 
     public T[] resize(int s,T[] array){
         T[] newArray = (T[]) new Object[s];
