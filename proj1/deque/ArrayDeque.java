@@ -6,7 +6,7 @@ public class ArrayDeque<T> {
     private int lsize;
     private T[] last;
 
-    public ArrayDeque(){
+    public ArrayDeque() {
         first = (T[]) new Object[8];
         last = (T[]) new Object[8];
         fsize = 0;
@@ -14,12 +14,12 @@ public class ArrayDeque<T> {
     }
 
     public void addFirst(T item){
-        if(fsize + 1 > first.length){
+        /**if(fsize + 1 > first.length){
             first = resize(fsize * 2,first);
         }
         if(fsize < first.length / 4){
             first = resize(first.length / 2,first);
-        }
+        }**/
         if(fsize < 0){
             last[-fsize-1] = item;
         }else {
@@ -29,12 +29,12 @@ public class ArrayDeque<T> {
     }
 
     public void addLast(T item){
-        if(lsize + 1 > last.length){
+        /**if(lsize + 1 > last.length){
             last = resize(lsize * 2,last);
         }
         if(lsize < last.length / 4){
             last = resize(last.length / 2,last);
-        }
+        }**/
         if(lsize < 0){
             first[-lsize-1] = item;
         }else{
@@ -101,9 +101,9 @@ public class ArrayDeque<T> {
             return null;
         }
         if(fsize <= index+1){
-            return first[fsize-index-1];
+            return last[index-fsize];
         }
-        return last[index-fsize];
+        return first[fsize-index-1];
 
     }
 
