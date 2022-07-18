@@ -130,17 +130,17 @@ public class LinkedListDeque<T> implements Deque<T>{
 
     public boolean equals(Object o){
         int flag = 1;
-        if(o instanceof LinkedListDeque){
-            Node list = first;
-            Node tryList = ((LinkedListDeque<T>) o).first;
-            for(;list.next != first && tryList.next != ((LinkedListDeque<T>) o).first;list = list.next,tryList = tryList.next){
-                if(list.value != tryList.value){
-                    flag = 0;
-                    break;
+        if(o instanceof Deque){
+            if(((Deque<T>) o).size() == size()){
+                for(int i = 0;i < size();i++){
+                    if(((Deque<T>) o).get(i) != get(i)){
+                        flag = 0;
+                        break;
+                    }
                 }
-            }
-            if(flag == 1){
-                return true;
+                if(flag == 1){
+                    return true;
+                }
             }
         }
         return false;

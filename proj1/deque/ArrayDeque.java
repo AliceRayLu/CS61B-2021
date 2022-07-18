@@ -17,12 +17,12 @@ public class ArrayDeque<T> implements Deque<T>{
 
     @Override
     public void addFirst(T item){
-        /**if(fsize + 1 > first.length){
+        if(fsize + 1 > first.length){
             first = resize(fsize * 2,first);
         }
         if(fsize < first.length / 4){
             first = resize(first.length / 2,first);
-        }**/
+        }
         if(fsize < 0){
             last[-fsize-1] = item;
         }else {
@@ -33,12 +33,12 @@ public class ArrayDeque<T> implements Deque<T>{
 
     @Override
     public void addLast(T item){
-        /**if(lsize + 1 > last.length){
+        if(lsize + 1 > last.length){
             last = resize(lsize * 2,last);
         }
         if(lsize < last.length / 4){
             last = resize(last.length / 2,last);
-        }**/
+        }
         if(lsize < 0){
             first[-lsize-1] = item;
         }else{
@@ -123,35 +123,13 @@ public class ArrayDeque<T> implements Deque<T>{
     }
 
     public boolean equals(Object o){
-        if(o instanceof ArrayDeque){
-            int flag = 1;
-            if(((ArrayDeque) o).size() == lsize+fsize){
-                if(fsize > 0 && lsize >= 0){
-                    for(int index = fsize-1;index >= 0;index--){
-                        if(first[index] != ((ArrayDeque)o).first[index]){
-                            flag = 0;
-                            break;
-                        }
-                    }
-                    for(int i = 0;i < lsize;i++){
-                        if(last[i] != ((ArrayDeque)o).last[i]){
-                            flag = 0;
-                            break;
-                        }
-                    }
-                }else if(fsize > 0 && lsize < 0){
-                    for(int i = fsize-1;i >= (-lsize);i--){
-                        if(first[i] != ((ArrayDeque)o).first[i]){
-                            flag = 0;
-                            break;
-                        }
-                    }
-                }else if(fsize <= 0){
-                    for(int i = (-fsize);i < lsize;i++){
-                        if(last[i] != ((ArrayDeque)o).last[i]){
-                            flag = 0;
-                            break;
-                        }
+        int flag = 1;
+        if(o instanceof Deque){
+            if(((Deque<T>) o).size() == size()){
+                for(int i = 0;i < size();i++){
+                    if(((Deque<T>) o).get(i) != get(i)){
+                        flag = 0;
+                        break;
                     }
                 }
                 if(flag == 1){
