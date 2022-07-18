@@ -1,6 +1,8 @@
 package deque;
 
-public class ArrayDeque<T> {
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Deque<T>{
     private T[] first;
     private int fsize;
     private int lsize;
@@ -13,6 +15,7 @@ public class ArrayDeque<T> {
         lsize = 0;
     }
 
+    @Override
     public void addFirst(T item){
         /**if(fsize + 1 > first.length){
             first = resize(fsize * 2,first);
@@ -28,6 +31,7 @@ public class ArrayDeque<T> {
         fsize += 1;
     }
 
+    @Override
     public void addLast(T item){
         /**if(lsize + 1 > last.length){
             last = resize(lsize * 2,last);
@@ -43,17 +47,12 @@ public class ArrayDeque<T> {
         lsize += 1;
     }
 
-    public boolean isEmpty(){
-        if(fsize+lsize == 0){
-            return true;
-        }
-        return false;
-    }
-
+    @Override
     public int size(){
         return fsize+lsize;
     }
 
+    @Override
     public void printDeque(){
         for(int i = fsize-1;i >= 0;i--){
             System.out.print(first[i].toString()+" ");
@@ -64,6 +63,7 @@ public class ArrayDeque<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst(){
         if(fsize+lsize == 0){
             return null;
@@ -80,6 +80,7 @@ public class ArrayDeque<T> {
         return res;
     }
 
+    @Override
     public T removeLast(){
         if(fsize+lsize == 0){
             return null;
@@ -96,6 +97,7 @@ public class ArrayDeque<T> {
         return res;
     }
 
+    @Override
     public T get(int index){
         if(fsize+lsize == 0 || index+1 > fsize+lsize){
             return null;
@@ -113,6 +115,51 @@ public class ArrayDeque<T> {
             newArray[i] = array[i];
         }
         return newArray;
+    }
+
+    public Iterator<T> iterator(){
+        //TODO
+        return null;
+    }
+
+    public boolean equals(Object o){
+        if(o instanceof ArrayDeque){
+            int flag = 1;
+            if(((ArrayDeque) o).size() == lsize+fsize){
+                if(fsize > 0 && lsize >= 0){
+                    for(int index = fsize-1;index >= 0;index--){
+                        if(first[index] != ((ArrayDeque)o).first[index]){
+                            flag = 0;
+                            break;
+                        }
+                    }
+                    for(int i = 0;i < lsize;i++){
+                        if(last[i] != ((ArrayDeque)o).last[i]){
+                            flag = 0;
+                            break;
+                        }
+                    }
+                }else if(fsize > 0 && lsize < 0){
+                    for(int i = fsize-1;i >= (-lsize);i--){
+                        if(first[i] != ((ArrayDeque)o).first[i]){
+                            flag = 0;
+                            break;
+                        }
+                    }
+                }else if(fsize <= 0){
+                    for(int i = (-fsize);i < lsize;i++){
+                        if(last[i] != ((ArrayDeque)o).last[i]){
+                            flag = 0;
+                            break;
+                        }
+                    }
+                }
+                if(flag == 1){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
