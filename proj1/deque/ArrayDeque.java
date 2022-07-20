@@ -18,7 +18,7 @@ public class ArrayDeque<T> implements Deque<T>{
     @Override
     public void addFirst(T item){
         if(fsize + 1 >= first.length){
-            first = resize(fsize * 2,first,lsize);
+            first = resize(fsize * 2,first,fsize);
         }
         if(fsize < 0){
             last[-fsize-1] = item;
