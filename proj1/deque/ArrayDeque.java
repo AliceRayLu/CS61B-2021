@@ -17,11 +17,8 @@ public class ArrayDeque<T> implements Deque<T>{
 
     @Override
     public void addFirst(T item){
-        if(fsize + 1 > first.length){
-            first = resize(fsize * 2,first);
-        }
-        if(fsize < first.length / 4){
-            first = resize(first.length / 2,first);
+        if(fsize + 1 >= first.length){
+            first = resize(fsize * 2,first,lsize);
         }
         if(fsize < 0){
             last[-fsize-1] = item;
@@ -33,12 +30,10 @@ public class ArrayDeque<T> implements Deque<T>{
 
     @Override
     public void addLast(T item){
-        if(lsize + 1 > last.length){
-            last = resize(lsize * 2,last);
+        if(lsize + 1 >= last.length){
+            last = resize(lsize * 2,last,lsize);
         }
-        if(lsize < last.length / 4){
-            last = resize(last.length / 2,last);
-        }
+
         if(lsize < 0){
             first[-lsize-1] = item;
         }else{
@@ -99,7 +94,7 @@ public class ArrayDeque<T> implements Deque<T>{
 
     @Override
     public T get(int index){
-        if(fsize+lsize == 0 || index+1 > fsize+lsize){
+        if(size() == 0 || index+1 > size()){
             return null;
         }
         if(fsize <= index+1){
@@ -109,9 +104,9 @@ public class ArrayDeque<T> implements Deque<T>{
 
     }
 
-    public T[] resize(int s,T[] array){
+    private T[] resize(int s,T[] array,int originSize){
         T[] newArray = (T[]) new Object[s];
-        for(int i = 0;i < (fsize < s ? fsize:s);i++){
+        for(int i = 0;i < (originSize < s ? originSize:s);i++){
             newArray[i] = array[i];
         }
         return newArray;

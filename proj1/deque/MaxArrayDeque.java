@@ -3,30 +3,36 @@ package deque;
 import java.util.Comparator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T>{
-    private T[] first;
-    private int fsize;
-    private int lsize;
-    private T[] last;
     private Comparator<T> comparator;
 
     public MaxArrayDeque(Comparator<T> c){
         comparator = c;
-        first = (T[]) new Object[8];
-        last = (T[]) new Object[8];
-        fsize = 0;
-        lsize = 0;
     }
 
     public T max(){
-        if(lsize+fsize == 0){
+        if(size() == 0){
             return null;
         }
-        //TODO
-        return null;
+        T maxOne = get(0);
+        for(int i = 0;i < size();i++){
+            if(comparator.compare(get(i),maxOne) > 0){
+                maxOne = get(i);
+            }
+        }
+        return maxOne;
     }
 
     public T max(Comparator<T> c){
-        //TODO
-        return null;
+        if(size() == 0){
+            return null;
+        }
+        T maxOne = get(0);
+        for(int i = 0;i < size();i++){
+            if(c.compare(get(i),maxOne) > 0){
+                maxOne = get(i);
+            }
+        }
+        return maxOne;
     }
+
 }
