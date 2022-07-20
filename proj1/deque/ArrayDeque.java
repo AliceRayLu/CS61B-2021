@@ -33,7 +33,6 @@ public class ArrayDeque<T> implements Deque<T>{
         if(lsize + 1 >= last.length){
             last = resize(lsize * 2,last,lsize);
         }
-
         if(lsize < 0){
             first[-lsize-1] = item;
         }else{
@@ -72,6 +71,12 @@ public class ArrayDeque<T> implements Deque<T>{
             first[fsize-1] = null;
         }
         fsize -= 1;
+        if(fsize < first.length/4){
+            first = resize(fsize/2,first,fsize);
+        }
+        if(lsize < last.length/4){
+            last = resize(lsize/2,last,lsize);
+        }
         return res;
     }
 
@@ -89,6 +94,12 @@ public class ArrayDeque<T> implements Deque<T>{
             last[lsize-1] = null;
         }
         lsize -= 1;
+        if(fsize < first.length/4){
+            first = resize(fsize/2,first,fsize);
+        }
+        if(lsize < last.length/4){
+            last = resize(lsize/2,last,lsize);
+        }
         return res;
     }
 
@@ -97,7 +108,7 @@ public class ArrayDeque<T> implements Deque<T>{
         if(size() == 0 || index+1 > size()){
             return null;
         }
-        if(fsize <= index+1){
+        if(fsize < index+1){
             return last[index-fsize];
         }
         return first[fsize-index-1];

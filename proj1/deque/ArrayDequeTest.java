@@ -25,4 +25,29 @@ public class ArrayDequeTest {
         assertEquals(15,(int)testArrayDeque.removeFirst());
         assertEquals(15,(int)testArrayDeque.removeLast());
     }
+
+    @Test
+    public void testGet(){
+        ArrayDeque<Integer> testArrayDeque = new ArrayDeque<>();
+        testArrayDeque.addFirst(0);
+        testArrayDeque.addLast(1);
+        assertEquals(0,(int)testArrayDeque.removeFirst());
+        assertEquals(1,(int)testArrayDeque.get(0));
+        assertEquals(1,(int)testArrayDeque.removeLast());
+        testArrayDeque.addLast(5);
+        assertEquals(5,(int)testArrayDeque.removeLast());
+        testArrayDeque.addLast(7);
+        assertEquals(7,(int)testArrayDeque.removeFirst());
+        testArrayDeque.addFirst(9);
+        testArrayDeque.addLast(10);
+        testArrayDeque.addFirst(11);
+        testArrayDeque.addFirst(12);
+        assertEquals(12,(int)testArrayDeque.get(0));
+        assertEquals(12,(int)testArrayDeque.removeFirst());
+        testArrayDeque.addFirst(15);
+        assertEquals(10,(int)testArrayDeque.removeLast());
+        testArrayDeque.addFirst(17);
+        assertEquals(9,(int)testArrayDeque.removeLast());
+        assertEquals(11,(int)testArrayDeque.get(2));
+    }
 }
