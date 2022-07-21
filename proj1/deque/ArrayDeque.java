@@ -123,17 +123,34 @@ public class ArrayDeque<T> implements Deque<T>{
         return newArray;
     }
 
+    private class ADIterator implements Iterator<T>{
+        private int pointer;
+
+        public ADIterator(){
+            pointer = 0;
+        }
+        @Override
+        public boolean hasNext() {
+            return pointer < fsize+lsize;
+        }
+
+        @Override
+        public T next() {
+            T nextItem = get(pointer);
+            pointer++;
+            return nextItem;
+        }
+    }
     public Iterator<T> iterator(){
-        //TODO
-        return null;
+        return new ADIterator();
     }
 
     public boolean equals(Object o){
         int flag = 1;
         if(o instanceof Deque){
-            if(((Deque<T>) o).size() == size()){
+            if(((Deque<T>) o).size() == this.size()){
                 for(int i = 0;i < size();i++){
-                    if(((Deque<T>) o).get(i) != get(i)){
+                    if(!((Deque<T>) o).get(i).equals(get(i))){
                         flag = 0;
                         break;
                     }

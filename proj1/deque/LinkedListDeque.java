@@ -121,7 +121,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         return helper(index).value;
     }
 
-    public Node helper(int index){
+    private Node helper(int index){
         if(index == 0){
             return first;
         }
@@ -131,9 +131,9 @@ public class LinkedListDeque<T> implements Deque<T>{
     public boolean equals(Object o){
         int flag = 1;
         if(o instanceof Deque){
-            if(((Deque<T>) o).size() == size()){
+            if(((Deque<T>) o).size() == this.size()){
                 for(int i = 0;i < size();i++){
-                    if(((Deque<T>) o).get(i) != get(i)){
+                    if(!((Deque<T>) o).get(i).equals(get(i))){
                         flag = 0;
                         break;
                     }
@@ -146,8 +146,25 @@ public class LinkedListDeque<T> implements Deque<T>{
         return false;
     }
 
+    private class LLDIterator implements Iterator<T>{
+        private int pointer;
+
+        public LLDIterator(){
+            pointer = 0;
+        }
+        @Override
+        public boolean hasNext() {
+            return pointer < size;
+        }
+
+        @Override
+        public T next() {
+            T nextItem = get(pointer);
+            pointer++;
+            return nextItem;
+        }
+    }
     public Iterator<T> iterator(){
-        //TODO
-        return null;
+        return new LLDIterator();
     }
 }

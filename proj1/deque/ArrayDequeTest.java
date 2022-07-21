@@ -50,4 +50,9 @@ public class ArrayDequeTest {
         assertEquals(9,(int)testArrayDeque.removeLast());
         assertEquals(11,(int)testArrayDeque.get(2));
     }
+
+    @Test
+    public void FillEmptyFill(){
+        ArrayDeque<Integer> testArrayDeque = new ArrayDeque<>();
+    }
 }
