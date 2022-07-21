@@ -133,7 +133,7 @@ public class LinkedListDeque<T> implements Deque<T>{
         if(o instanceof Deque){
             if(((Deque<T>) o).size() == this.size()){
                 for(int i = 0;i < size();i++){
-                    if(!((Deque<T>) o).get(i).equals(get(i))){
+                    if(!contains(((Deque<T>) o).get(i))){
                         flag = 0;
                         break;
                     }
@@ -141,6 +141,15 @@ public class LinkedListDeque<T> implements Deque<T>{
                 if(flag == 1){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean contains(T item){
+        for(int i = 0;i < size;i++){
+            if(get(i).equals(item)){
+                return true;
             }
         }
         return false;

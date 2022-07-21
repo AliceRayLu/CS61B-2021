@@ -150,7 +150,7 @@ public class ArrayDeque<T> implements Deque<T>{
         if(o instanceof Deque){
             if(((Deque<T>) o).size() == this.size()){
                 for(int i = 0;i < size();i++){
-                    if(!((Deque<T>) o).get(i).equals(get(i))){
+                    if(!contains(((Deque<T>) o).get(i))){
                         flag = 0;
                         break;
                     }
@@ -163,4 +163,12 @@ public class ArrayDeque<T> implements Deque<T>{
         return false;
     }
 
+    private boolean contains(T item){
+        for(int i = 0;i < size();i++){
+            if(get(i).equals(item)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
