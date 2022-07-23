@@ -67,13 +67,13 @@ public class ArrayDeque<T> implements Deque<T>{
             res = last[-fsize];
             last[-fsize] = null;
             if(lsize > 2 && lsize < last.length/4){
-                last = resize(lsize/2,last,lsize);
+                last = resize(last.length/2,last,lsize);
             }
         }else {
             res = first[fsize-1];
             first[fsize-1] = null;
             if(fsize > 2 && fsize < first.length/4){
-                first = resize(fsize/2,first,fsize);
+                first = resize(first.length/2,first,fsize);
             }
         }
         fsize -= 1;
@@ -90,13 +90,13 @@ public class ArrayDeque<T> implements Deque<T>{
             res = first[-lsize];
             first[-lsize] = null;
             if(fsize > 2 && fsize < first.length/4){
-                first = resize(fsize/2,first,fsize);
+                first = resize(first.length/2,first,fsize);
             }
         }else {
             res = last[lsize-1];
             last[lsize-1] = null;
             if(lsize > 2 && lsize < last.length/4){
-                last = resize(lsize/2,last,lsize);
+                last = resize(last.length/2,last,lsize);
             }
         }
         lsize -= 1;

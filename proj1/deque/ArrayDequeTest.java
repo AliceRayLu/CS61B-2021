@@ -54,5 +54,12 @@ public class ArrayDequeTest {
     @Test
     public void FillEmptyFill(){
         ArrayDeque<Integer> testArrayDeque = new ArrayDeque<>();
+        for(int i =0;i < 20;i++){
+            testArrayDeque.addFirst(i);
+        }
+        for(int i = 19;i >=0;i--){
+            assertEquals(i,(int)testArrayDeque.removeFirst());
+        }
+
     }
 }
