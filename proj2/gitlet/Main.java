@@ -1,7 +1,9 @@
 package gitlet;
 
+import java.io.File;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author ARL
  */
 public class Main {
 
@@ -9,16 +11,50 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
-        String firstArg = args[0];
-        switch(firstArg) {
-            case "init":
-                // TODO: handle the `init` command
-                break;
-            case "add":
-                // TODO: handle the `add [filename]` command
-                break;
-            // TODO: FILL THE REST IN
+        if(args.length == 0){
+            System.out.println("Please enter a command.");
+        }else{
+            String firstArg = args[0];
+            switch(firstArg) {
+                case "init":
+                    if(args.length > 1){
+                        System.out.println("Incorrect operands.");
+                    }else{
+                        Repository.setup();
+                    }
+                    break;
+                case "add":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        File f = new File(args[1]);
+                        if(!f.exists()){
+                            System.out.println("File does not exist.");
+                        }else{
+                            Repository.AddToStage(f);
+                        }
+                    }
+                    break;
+                case "commit":
+                    if(args.length < 2 || args[1].equals("")){
+                        System.out.println("Please enter a commit message.");
+                    }else if(args.length > 2){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else if(!Repository.checkStage()){
+                        System.out.println("No changes added to the commit.");
+                    }else{
+                        Repository.MakeCommit(args[1]);
+                    }
+                    break;
+                default:
+                    System.out.println("No command with that name exists.");
+                    break;
+            }
         }
+
     }
 }

@@ -1,6 +1,6 @@
 # Gitlet Design Document
 
-**Name**:
+**Name**: ARL
 
 ## Classes and Data Structures
 
