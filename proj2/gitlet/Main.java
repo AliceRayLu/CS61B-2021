@@ -50,6 +50,35 @@ public class Main {
                         Repository.MakeCommit(args[1]);
                     }
                     break;
+                case "rm":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        if(!Repository.IsInStage(args[1]) || !Repository.IsInCommit(args[1])){
+                            System.out.println("No reason to remove the file.");
+                        }
+                    }
+                    break;
+                case "log":
+                    if(args.length > 1){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.printLog();
+                    }
+                    break;
+                case "global-log":
+                    if(args.length > 1){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.printGlobal();
+                    }
+                    break;
                 default:
                     System.out.println("No command with that name exists.");
                     break;

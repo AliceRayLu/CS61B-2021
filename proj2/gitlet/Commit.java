@@ -32,6 +32,7 @@ public class Commit implements Serializable {
         message = cmessage;
         time = ctime;
         pre = cpre;
+        merged = null;
     }
 
     public Set<File> getFiles(){
@@ -42,8 +43,20 @@ public class Commit implements Serializable {
         return pre;
     }
 
+    public Commit getMerged(){
+        return merged;
+    }
+
     public void addFiles(Set<File> files){
         this.files = files;
+    }
+
+    public Date getTime(){
+        return time;
+    }
+
+    public String getMessage(){
+        return message;
     }
 
     /* TODO: fill in the rest of this class. */

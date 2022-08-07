@@ -2,16 +2,16 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.*;
 
 import static gitlet.Utils.*;
 
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author ARL
  */
 public class Repository {
     /**List all instance variables of the Repository class here with a useful
@@ -25,8 +25,7 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     /** the HEAD file */
     public static File HEAD = join(GITLET_DIR,"HEAD");
-    /** log file */
-    public static File log = join(GITLET_DIR,"log");
+
     /** .gitlet -- /branch directory. */
     public static final File BRANCH_DIR = join(GITLET_DIR,"branch");
     /** the main master branch*/
@@ -37,8 +36,7 @@ public class Repository {
     public static final File BLOB_DIR = join(GITLET_DIR,"blob");
     /** .gitlet -- /blob/stage directory */
     public static final File STAGE_DIR = join(GITLET_DIR,"stage");
-    /** store the staged files*/
-    public static Vector<stage> stages;
+
 
     /** initialize the repository: set up the .gitlet folder*/
     public static void setup(){
@@ -74,10 +72,7 @@ public class Repository {
 
     /** check if the repository is initialized.*/
     public static boolean isInitialized(){
-        if(!GITLET_DIR.exists()){
-            return false;
-        }
-        return true;
+        return GITLET_DIR.exists();
     }
 
     /** add the file to blobs, return the blob.*/
@@ -99,15 +94,12 @@ public class Repository {
         blob b = AddToBlob(f);
         if(b == null){
             if(stageFile.exists()){
-                stageFile.delete();
-                stages.remove(newStage);
+                Utils.readContents(stageFile);
             }
         }else{
-            if(stages.contains(newStage)){
-                stages.remove(newStage);
+            if(IsInStage(f.getName())){
                 newStage.changeBlob(b);
             }
-            stages.add(newStage);
             Utils.writeObject(stageFile,newStage);
         }
     }
@@ -139,17 +131,18 @@ public class Repository {
                         newCommitFile.add(blob);
                     }
                     stageSet.remove(Utils.sha1(b.getName()));
-                    blob.delete();
+                    Utils.restrictedDelete(blob);
                 }else{
                     newCommitFile.add(f);
                 }
             }
             if(checkStage()){
                 String[] stages = STAGE_DIR.list();
+                assert stages != null;
                 for(String s: stages){
                     File f = join(STAGE_DIR,s);
                     newCommitFile.add(f);
-                    f.delete();
+                    Utils.restrictedDelete(f);
                 }
             }
             newCommit.addFiles(newCommitFile);
@@ -164,6 +157,77 @@ public class Repository {
             Utils.writeObject(curb,curBranch);
         }else{
             System.out.println("No changes added to the commit.");
+        }
+    }
+
+    /** check if a file is in a stage area, if in, delete*/
+    public static boolean IsInStage(String name){
+        String[] stages = STAGE_DIR.list();
+        assert stages != null;
+        for(String s:stages){
+            if(s.equals(Utils.sha1(name))){
+                File f = join(STAGE_DIR,s);
+                Utils.restrictedDelete(f);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** check if a file is in current commit, if in, stage for removal. */
+    public static boolean IsInCommit(String name){
+        branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+        Commit cur = HEAD.curCommit;
+        for(File f: cur.getFiles()){
+            blob b = Utils.readObject(f,blob.class);
+            if(b.getName().equals(name)){
+                stage s = new stage(name,false);
+                s.changeBlob(b);
+                File newStage = join(STAGE_DIR,Utils.sha1(name));
+                Utils.writeObject(newStage,s);
+                File rmFile = join(CWD,name);
+                if(rmFile.exists()){
+                    Utils.restrictedDelete(rmFile);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** print the commit log*/
+    public static void printLog(){
+        branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+        Commit cur = HEAD.curCommit;
+        while (cur.getPre() != null){
+            System.out.println("===");
+            System.out.println("commit "+Utils.sha1(cur));
+            if(cur.getMerged() != null){
+                System.out.println("Merge: "+Utils.sha1(cur.getPre()).substring(0,7)+" "+Utils.sha1(cur.getMerged()).substring(0,7));
+            }
+            DateFormat df = DateFormat.getDateInstance();
+            System.out.println("Date: "+df.format(cur.getTime()));
+            System.out.println(cur.getMessage());
+            System.out.println();
+            cur = cur.getPre();
+        }
+    }
+
+    /** print all the commit */
+    public static void printGlobal(){
+        String[] commits = COMMIT_DIR.list();
+        for(String s: commits){
+            File f = join(COMMIT_DIR,s);
+            Commit c = Utils.readObject(f,Commit.class);
+            System.out.println("===");
+            System.out.println("commit "+Utils.sha1(c));
+            if(c.getMerged() != null){
+                System.out.println("Merge: "+Utils.sha1(c.getPre()).substring(0,7)+" "+Utils.sha1(c.getMerged()).substring(0,7));
+            }
+            DateFormat df = DateFormat.getDateInstance();
+            System.out.println("Date: "+df.format(c.getTime()));
+            System.out.println(c.getMessage());
+            System.out.println();
         }
     }
     // TODO: fill in the rest of this class.
