@@ -2,7 +2,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 
 /** Represents a gitlet commit object.
@@ -51,8 +54,9 @@ public class Commit implements Serializable {
         this.files = files;
     }
 
-    public Date getTime(){
-        return time;
+    public String getTime(){
+        DateFormat df = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        return df.format(time);
     }
 
     public String getMessage(){

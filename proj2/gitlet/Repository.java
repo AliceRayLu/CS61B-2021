@@ -49,7 +49,7 @@ public class Repository {
             BRANCH_DIR.mkdirs();
             branch HEAD = new branch("HEAD");
             Commit initial = new Commit("initial commit",new Date(0),null);
-            File iniCommit = join(COMMIT_DIR,Utils.sha1(initial));
+            File iniCommit = join(COMMIT_DIR,Utils.sha1(initial.toString()));
             branch master = new branch("master");
             master.curCommit = initial;
             HEAD.curCommit = initial;
@@ -136,7 +136,7 @@ public class Repository {
                 }
             }
             newCommit.addFiles(newCommitFile);
-            File nc = join(COMMIT_DIR,Utils.sha1(newCommit));
+            File nc = join(COMMIT_DIR,Utils.sha1(newCommit.toString()));
             Utils.writeObject(nc,newCommit);
             branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
             HEAD.curCommit = newCommit;
@@ -195,8 +195,7 @@ public class Repository {
             if(cur.getMerged() != null){
                 System.out.println("Merge: "+Utils.sha1(cur.getPre()).substring(0,7)+" "+Utils.sha1(cur.getMerged()).substring(0,7));
             }
-            DateFormat df = DateFormat.getDateInstance();
-            System.out.println("Date: "+df.format(cur.getTime()));
+            System.out.println("Date: "+cur.getTime());
             System.out.println(cur.getMessage());
             System.out.println();
             cur = cur.getPre();
