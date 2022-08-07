@@ -58,8 +58,9 @@ public class Repository {
                 }catch (IOException e){}
             }
             branch HEAD = new branch("HEAD");
-            Commit initial = new Commit("initial commit",new Date(0),null);
-            File iniCommit = join(COMMIT_DIR,sha1(initial));
+            Date d = new Date(0);
+            Commit initial = new Commit("initial commit",d,null);
+            File iniCommit = join(COMMIT_DIR,sha1(d));
             branch master = new branch("master");
             master.curCommit = initial;
             HEAD.curCommit = initial;
