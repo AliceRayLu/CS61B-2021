@@ -107,7 +107,8 @@ public class Repository {
     public static void MakeCommit(String message){
         if(checkStage()){
             Date cur = new Date();
-            Commit pre = Utils.readObject(HEAD,Commit.class);
+            branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+            Commit pre = HEAD.curCommit;
             Commit newCommit = new Commit(message,cur,pre);
             Set<File> preFile = pre.getFiles();
             Set<File> newCommitFile = new HashSet<>();
@@ -138,7 +139,6 @@ public class Repository {
             newCommit.addFiles(newCommitFile);
             File nc = join(COMMIT_DIR,Utils.sha1(newCommit.toString()));
             Utils.writeObject(nc,newCommit);
-            branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
             HEAD.curCommit = newCommit;
             Utils.writeObject(Repository.HEAD,HEAD);
             branch curBranch = HEAD.cur;

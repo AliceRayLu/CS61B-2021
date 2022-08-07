@@ -79,6 +79,12 @@ public class Main {
                         Repository.printGlobal();
                     }
                     break;
+                case "checkout":
+                    if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }
+                    //TODO: finish checkout
+                    break;
                 default:
                     System.out.println("No command with that name exists.");
                     break;
