@@ -47,20 +47,9 @@ public class Repository {
             BLOB_DIR.mkdirs();
             STAGE_DIR.mkdirs();
             BRANCH_DIR.mkdirs();
-            if(!master.exists()){
-                try {
-                    master.createNewFile();
-                }catch (IOException e){}
-            }
-            if(!HEAD.exists()){
-                try {
-                    HEAD.createNewFile();
-                }catch (IOException e){}
-            }
             branch HEAD = new branch("HEAD");
-            Date d = new Date(0);
-            Commit initial = new Commit("initial commit",d,null);
-            File iniCommit = join(COMMIT_DIR,sha1(d));
+            Commit initial = new Commit("initial commit",new Date(0),null);
+            File iniCommit = join(COMMIT_DIR,Utils.sha1(initial));
             branch master = new branch("master");
             master.curCommit = initial;
             HEAD.curCommit = initial;
@@ -79,7 +68,7 @@ public class Repository {
     /** add the file to blobs, return the blob.*/
     public static blob AddToBlob(File f){
         blob newBlob = new blob(f.getName(),Utils.readContents(f));
-        File blob = join(BLOB_DIR,Utils.sha1(newBlob.getContent()));
+        File blob = join(BLOB_DIR,Utils.sha1(newBlob.getName(),newBlob.getContent()));
         if(blob.exists()){
             return null;
         }else{
