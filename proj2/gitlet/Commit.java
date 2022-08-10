@@ -38,6 +38,10 @@ public class Commit implements Serializable {
         merged = null;
     }
 
+    public Commit(){
+
+    }
+
     public Set<File> getFiles(){
         return files;
     }

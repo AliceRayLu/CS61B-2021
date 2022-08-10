@@ -82,9 +82,36 @@ public class Main {
                 case "checkout":
                     if(!Repository.isInitialized()){
                         System.out.println("Not in an initialized Gitlet directory.");
+                    }else if(args.length == 1 || args.length > 4){
+                        System.out.println("Incorrect operands.");
+                    }else if(args[1].equals("--")){
+                        if(args.length != 3){
+                            System.out.println("Incorrect operands.");
+                        }else {
+                            Repository.checkoutFile("HEAD", args[2]);
+                        }
+                    }else if(args[2].equals("--")){
+                        if(args.length != 4){
+                            System.out.println("Incorrect operands.");
+                        }else{
+                            Repository.checkoutFile(args[1],args[3]);
+                        }
+                    }else{
+                        if(args.length != 2){
+                            System.out.println("Incorrect operands.");
+                        }else{
+                            Repository.checkoutBranch(args[1]);
+                        }
                     }
-                    //TODO: finish checkout
                     break;
+                case "find":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.findCommit(args[1]);
+                    }
                 default:
                     System.out.println("No command with that name exists.");
                     break;

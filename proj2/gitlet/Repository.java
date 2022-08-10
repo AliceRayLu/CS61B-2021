@@ -113,18 +113,20 @@ public class Repository {
             Set<File> preFile = pre.getFiles();
             Set<File> newCommitFile = new HashSet<>();
             List<String> stageSet = Arrays.asList(STAGE_DIR.list());
-            for(File f:preFile){
-                blob b = Utils.readObject(f,blob.class);
-                if(stageSet.contains(Utils.sha1(b.getName()))){
-                    File blob = join(STAGE_DIR,Utils.sha1(b.getName()));
-                    stage s = Utils.readObject(blob,stage.class);
-                    if(s.isForAdd()){
-                        newCommitFile.add(blob);
+            if(!preFile.isEmpty()){
+                for(File f:preFile){
+                    blob b = Utils.readObject(f,blob.class);
+                    if(stageSet.contains(Utils.sha1(b.getName()))){
+                        File blob = join(STAGE_DIR,Utils.sha1(b.getName()));
+                        stage s = Utils.readObject(blob,stage.class);
+                        if(s.isForAdd()){
+                            newCommitFile.add(blob);
+                        }
+                        stageSet.remove(Utils.sha1(b.getName()));
+                        Utils.restrictedDelete(blob);
+                    }else{
+                        newCommitFile.add(f);
                     }
-                    stageSet.remove(Utils.sha1(b.getName()));
-                    Utils.restrictedDelete(blob);
-                }else{
-                    newCommitFile.add(f);
                 }
             }
             if(checkStage()){
@@ -191,9 +193,9 @@ public class Repository {
         Commit cur = HEAD.curCommit;
         while (cur.getPre() != null){
             System.out.println("===");
-            System.out.println("commit "+Utils.sha1(cur));
+            System.out.println("commit "+Utils.sha1(cur.toString()));
             if(cur.getMerged() != null){
-                System.out.println("Merge: "+Utils.sha1(cur.getPre()).substring(0,7)+" "+Utils.sha1(cur.getMerged()).substring(0,7));
+                System.out.println("Merge: "+Utils.sha1(cur.getPre().toString()).substring(0,7)+" "+Utils.sha1(cur.getMerged().toString()).substring(0,7));
             }
             System.out.println("Date: "+cur.getTime());
             System.out.println(cur.getMessage());
@@ -209,14 +211,80 @@ public class Repository {
             File f = join(COMMIT_DIR,s);
             Commit c = Utils.readObject(f,Commit.class);
             System.out.println("===");
-            System.out.println("commit "+Utils.sha1(c));
+            System.out.println("commit "+Utils.sha1(c.toString()));
             if(c.getMerged() != null){
-                System.out.println("Merge: "+Utils.sha1(c.getPre()).substring(0,7)+" "+Utils.sha1(c.getMerged()).substring(0,7));
+                System.out.println("Merge: "+Utils.sha1(c.getPre().toString()).substring(0,7)+" "+Utils.sha1(c.getMerged().toString()).substring(0,7));
             }
             DateFormat df = DateFormat.getDateInstance();
             System.out.println("Date: "+df.format(c.getTime()));
             System.out.println(c.getMessage());
             System.out.println();
+        }
+    }
+
+    /** find the commit according to commit message */
+    public static void findCommit(String message){
+        int flag = 0;
+        String[] commits = COMMIT_DIR.list();
+        for(String s: commits){
+            File f = join(COMMIT_DIR,s);
+            Commit c = Utils.readObject(f,Commit.class);
+            if(c.getMessage().equals(message)){
+                flag = 1;
+                System.out.println(Utils.sha1(c.toString()));
+            }
+        }
+        if(flag == 0){
+            System.out.println("Found no commit with that message.");
+        }
+    }
+
+    /** checkout a file according to commit */
+    public static void checkoutFile(String cname,String filename){
+        int status = 1;
+        Commit c = new Commit();
+        branch b = Utils.readObject(Repository.HEAD,branch.class);
+        if(cname.equals("HEAD")){c = b.curCommit;}
+        else{
+            File f = join(COMMIT_DIR,cname);
+            if(!f.exists()){
+                System.out.println("No commit with that id exists.");
+                status = 0;
+            }else{ c = Utils.readObject(f, Commit.class);}
+        }
+        if(status == 0){System.exit(0);}
+        for(File cblob: c.getFiles()){
+            blob myFile = Utils.readObject(cblob,blob.class);
+            if(myFile.getName().equals(filename)){
+                status = 0;
+                File cwdFile = join(CWD,filename);
+                Utils.writeContents(cwdFile,myFile.getContent());
+                break;
+            }
+        }
+        if(status != 0){System.out.println("File does not exist in that commit.");}
+    }
+
+    /** checkout a branch */
+    public static void checkoutBranch(String bname){
+        File bFile = join(BRANCH_DIR,bname);
+        branch head = Utils.readObject(Repository.HEAD,branch.class);
+        if(!bFile.exists()){System.out.println("No such branch exists.");}
+        else if(head.cur.name().equals(bname)){System.out.println("No need to checkout the current branch.");}
+        else{
+            branch b = Utils.readObject(bFile,branch.class);
+            Commit c = b.curCommit;
+            List<String> files = Utils.plainFilenamesIn(CWD);
+            if(files.size() != c.getFiles().size()){System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            }else{
+                for(File f:c.getFiles()){
+                    blob file = Utils.readObject(f,blob.class);
+                    File cwdFile = join(CWD,file.getName());
+                    Utils.writeContents(cwdFile,file.getContent());
+                }
+                head.cur = b;
+                Utils.writeObject(Repository.HEAD,head);
+            }
         }
     }
     // TODO: fill in the rest of this class.
