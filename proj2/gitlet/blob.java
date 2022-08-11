@@ -11,6 +11,10 @@ public class blob implements Serializable {
         content = bcontent;
     }
 
+    public blob(){
+
+    }
+
     /** get the name of the file */
     public String getName(){
         return name;

@@ -78,19 +78,22 @@ public class Repository {
     }
 
     /** add to stage area*/
-    public static void AddToStage(File f){
-        stage newStage = new stage(f.getName(),true);
-        File stageFile = join(STAGE_DIR,Utils.sha1(f.getName()));
-        blob b = AddToBlob(f);
-        if(b == null){
-            if(stageFile.exists()){
-                Utils.readContents(stageFile);
-            }
-        }else{
-            if(IsInStage(f.getName())){
+    public static void AddToStage(String file){
+        File f = join(CWD,file);
+        if(!f.exists()){
+            System.out.println("File does not exist.");
+        }else {
+            stage newStage = new stage(file, true);
+            File stageFile = join(STAGE_DIR, Utils.sha1(file));
+            blob b = Repository.AddToBlob(f);
+            if (b == null) {
+                if (stageFile.exists()) {
+                    stageFile.delete();
+                }
+            } else {
                 newStage.changeBlob(b);
+                Utils.writeObject(stageFile, newStage);
             }
-            Utils.writeObject(stageFile,newStage);
         }
     }
 
@@ -112,18 +115,20 @@ public class Repository {
             Commit newCommit = new Commit(message,cur,pre);
             Set<File> preFile = pre.getFiles();
             Set<File> newCommitFile = new HashSet<>();
-            List<String> stageSet = Arrays.asList(STAGE_DIR.list());
+            List<String> stageSet = Utils.plainFilenamesIn(STAGE_DIR);
             if(!preFile.isEmpty()){
                 for(File f:preFile){
                     blob b = Utils.readObject(f,blob.class);
                     if(stageSet.contains(Utils.sha1(b.getName()))){
-                        File blob = join(STAGE_DIR,Utils.sha1(b.getName()));
-                        stage s = Utils.readObject(blob,stage.class);
+                        File blob1 = join(STAGE_DIR,Utils.sha1(b.getName()));
+                        stage s = Utils.readObject(blob1,stage.class);
                         if(s.isForAdd()){
-                            newCommitFile.add(blob);
+                            blob newBlob = s.getFileBlob();
+                            File newFile = join(BLOB_DIR,Utils.sha1(newBlob.getName(),newBlob.getContent()));
+                            newCommitFile.add(newFile);
                         }
                         stageSet.remove(Utils.sha1(b.getName()));
-                        Utils.restrictedDelete(blob);
+                        blob1.delete();
                     }else{
                         newCommitFile.add(f);
                     }
@@ -134,8 +139,11 @@ public class Repository {
                 assert stages != null;
                 for(String s: stages){
                     File f = join(STAGE_DIR,s);
-                    newCommitFile.add(f);
-                    Utils.restrictedDelete(f);
+                    stage stageFile = Utils.readObject(f,stage.class);
+                    blob newBlob = stageFile.getFileBlob();
+                    File newFile = join(BLOB_DIR,Utils.sha1(newBlob.getName(),newBlob.getContent()));
+                    newCommitFile.add(newFile);
+                    f.delete();
                 }
             }
             newCommit.addFiles(newCommitFile);
@@ -159,7 +167,7 @@ public class Repository {
         for(String s:stages){
             if(s.equals(Utils.sha1(name))){
                 File f = join(STAGE_DIR,s);
-                Utils.restrictedDelete(f);
+                f.delete();
                 return true;
             }
         }
@@ -191,7 +199,7 @@ public class Repository {
     public static void printLog(){
         branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
         Commit cur = HEAD.curCommit;
-        while (cur.getPre() != null){
+        while (cur != null){
             System.out.println("===");
             System.out.println("commit "+Utils.sha1(cur.toString()));
             if(cur.getMerged() != null){
@@ -253,7 +261,8 @@ public class Repository {
             }else{ c = Utils.readObject(f, Commit.class);}
         }
         if(status == 0){System.exit(0);}
-        for(File cblob: c.getFiles()){
+        Set<File> files = c.getFiles();
+        for(File cblob: files){
             blob myFile = Utils.readObject(cblob,blob.class);
             if(myFile.getName().equals(filename)){
                 status = 0;

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -35,11 +36,12 @@ public class Commit implements Serializable {
         message = cmessage;
         time = ctime;
         pre = cpre;
+        files = new HashSet<>();
         merged = null;
     }
 
     public Commit(){
-
+        files = new HashSet<>();
     }
 
     public Set<File> getFiles(){

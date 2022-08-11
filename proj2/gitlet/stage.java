@@ -11,6 +11,7 @@ public class stage implements Serializable {
     public stage(String name,boolean isForAdd){
         fileName = name;
         forAdd = isForAdd;
+        fileBlob = new blob();
     }
 
     public void changeBlob(blob b){
@@ -22,5 +23,9 @@ public class stage implements Serializable {
     }
     public boolean isForAdd(){
         return forAdd;
+    }
+
+    public blob getFileBlob(){
+        return fileBlob;
     }
 }

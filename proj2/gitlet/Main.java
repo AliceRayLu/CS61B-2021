@@ -29,12 +29,7 @@ public class Main {
                     }else if(!Repository.isInitialized()){
                         System.out.println("Not in an initialized Gitlet directory.");
                     }else{
-                        File f = new File(args[1]);
-                        if(!f.exists()){
-                            System.out.println("File does not exist.");
-                        }else{
-                            Repository.AddToStage(f);
-                        }
+                        Repository.AddToStage(args[1]);
                     }
                     break;
                 case "commit":
@@ -82,16 +77,14 @@ public class Main {
                 case "checkout":
                     if(!Repository.isInitialized()){
                         System.out.println("Not in an initialized Gitlet directory.");
-                    }else if(args.length == 1 || args.length > 4){
-                        System.out.println("Incorrect operands.");
-                    }else if(args[1].equals("--")){
-                        if(args.length != 3){
+                    }else if(args.length == 3){
+                        if(!args[1].equals("--")){
                             System.out.println("Incorrect operands.");
                         }else {
                             Repository.checkoutFile("HEAD", args[2]);
                         }
-                    }else if(args[2].equals("--")){
-                        if(args.length != 4){
+                    }else if(args.length == 4){
+                        if(!args[2].equals("--")){
                             System.out.println("Incorrect operands.");
                         }else{
                             Repository.checkoutFile(args[1],args[3]);
