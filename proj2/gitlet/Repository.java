@@ -300,6 +300,139 @@ public class Repository {
             }
         }
     }
+
+    /** print out the status */
+    public static void printStatus(){
+        System.out.println("=== Branches ===");
+        String[] branches = BRANCH_DIR.list();
+        Arrays.sort(branches);
+        branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+        for(String b: branches){
+            if(HEAD.cur.name().equals(b)){
+                System.out.println("*"+b);
+            }else{
+                System.out.println(b);
+            }
+        }
+        System.out.println();
+
+        System.out.println("=== Staged Files ===");
+        String[] stages = STAGE_DIR.list();
+        String[] added = new String[100],removed = new String[100];
+        int addSize = 0,rmSize = 0;
+        if(stages.length != 0){
+            for(String f:stages){
+                File stageFile = join(STAGE_DIR,f);
+                stage s = Utils.readObject(stageFile,stage.class);
+                if(s.isForAdd()){
+                    added[addSize] = s.getFileName();
+                    addSize++;
+                }else{
+                    removed[rmSize] = s.getFileName();
+                    rmSize++;
+                }
+            }
+            Arrays.sort(added);
+            Arrays.sort(removed);
+            for(String name:added){
+                System.out.println(name);
+            }
+        }
+        System.out.println();
+        System.out.println("=== Removed Files ===");
+        if(rmSize != 0){
+            for(String name:removed){
+                System.out.println(name);
+            }
+        }
+        System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
+    }
+
+    /** add a new branch in gitlet */
+    public static void addBranch(String name){
+        File branchFile = join(BRANCH_DIR,name);
+        if(branchFile.exists()){
+            System.out.println("A branch with that name already exists.");
+        }else{
+            branch b = new branch(name);
+            branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+            b.curCommit = HEAD.curCommit;
+            Utils.writeObject(branchFile,b);
+        }
+    }
+
+    /** remove a branch not currently on */
+    public static void removeBranch(String name){
+        File branchFile = join(BRANCH_DIR,name);
+        if(!branchFile.exists()){
+            System.out.println("A branch with that name does not exist.");
+        }else{
+            branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+            if(HEAD.cur.name().equals(name)){
+                System.out.println("Cannot remove the current branch.");
+            }else{
+                branchFile.delete();
+            }
+        }
+    }
+
+    /** reset a branch pointer and a head pointer */
+    public static void resetCommit(String cid){
+        String[] commits = COMMIT_DIR.list();
+        File f = join(COMMIT_DIR,cid);
+        String completeID = null;
+        int flag = 0;
+        for(String s:commits){
+            if(s.contains(cid)){
+                flag = 1;
+                f = join(COMMIT_DIR,s);
+                completeID = s;
+                break;
+            }
+        }
+        if(flag == 0){
+            System.out.println("No commit with that id exists");
+        }else{
+            branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+            Commit curCommit = HEAD.curCommit;
+            if(curCommit.getFiles().size() != CWD.list().length){
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+            }else{
+                for(File cur:CWD.listFiles()){
+                    Utils.restrictedDelete(cur);
+                }
+                Commit des = Utils.readObject(f,Commit.class);
+                for(File rFile:des.getFiles()){
+                    blob file = Utils.readObject(rFile,blob.class);
+                    Repository.checkoutFile(completeID, file.getName());
+                }
+                branch curBranch = HEAD.cur;
+                curBranch.curCommit = des;
+                HEAD.curCommit = des;
+                File curB = join(BRANCH_DIR,curBranch.name());
+                Utils.writeObject(curB,curBranch);
+                Utils.writeObject(Repository.HEAD,HEAD);
+            }
+        }
+    }
+
+    /** merge branch */
+    public static void merge(String bname){
+        branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
+        branch cur = HEAD.cur;
+        if(cur.mergedWith.name().equals(bname)){
+            System.out.println("Given branch is an ancestor of the current branch.");
+        }else if(cur.name().equals(bname)){
+            Repository.checkoutBranch(bname);
+            System.out.println("Current branch fast-forwarded.");
+        }else{
+
+        }
+    }
     // TODO: fill in the rest of this class.
 
 }

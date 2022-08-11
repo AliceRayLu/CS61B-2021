@@ -105,6 +105,52 @@ public class Main {
                     }else{
                         Repository.findCommit(args[1]);
                     }
+                    break;
+                case "status":
+                    if(args.length != 1){
+                        System.out.println("Incorrect operands.");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.printStatus();
+                    }
+                    break;
+                case "branch":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.addBranch(args[1]);
+                    }
+                    break;
+                case "rm-branch":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.removeBranch(args[1]);
+                    }
+                    break;
+                case "reset":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.resetCommit(args[1]);
+                    }
+                    break;
+                case "merge":
+                    if(args.length != 2){
+                        System.out.println("Incorrect operands");
+                    }else if(!Repository.isInitialized()){
+                        System.out.println("Not in an initialized Gitlet directory.");
+                    }else{
+                        Repository.merge(args[1]);
+                    }
+                    break;
                 default:
                     System.out.println("No command with that name exists.");
                     break;
