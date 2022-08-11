@@ -49,7 +49,7 @@ public class Repository {
             BRANCH_DIR.mkdirs();
             branch HEAD = new branch("HEAD");
             Commit initial = new Commit("initial commit",new Date(0),null);
-            File iniCommit = join(COMMIT_DIR,Utils.sha1(initial.toString()));
+            File iniCommit = join(COMMIT_DIR,Utils.sha1(initial.getMessage(),initial.getTime()));
             branch master = new branch("master");
             master.curCommit = initial;
             HEAD.curCommit = initial;
@@ -115,7 +115,9 @@ public class Repository {
             Commit newCommit = new Commit(message,cur,pre);
             Set<File> preFile = pre.getFiles();
             Set<File> newCommitFile = new HashSet<>();
-            List<String> stageSet = Utils.plainFilenamesIn(STAGE_DIR);
+            String[] stages1 = STAGE_DIR.list();
+            Set<String> stageSet = new HashSet<>();
+            Collections.addAll(stageSet,stages1);
             if(!preFile.isEmpty()){
                 for(File f:preFile){
                     blob b = Utils.readObject(f,blob.class);
@@ -147,7 +149,7 @@ public class Repository {
                 }
             }
             newCommit.addFiles(newCommitFile);
-            File nc = join(COMMIT_DIR,Utils.sha1(newCommit.toString()));
+            File nc = join(COMMIT_DIR,Utils.sha1(newCommit.getMessage(),newCommit.getTime()));
             Utils.writeObject(nc,newCommit);
             HEAD.curCommit = newCommit;
             Utils.writeObject(Repository.HEAD,HEAD);
@@ -201,9 +203,10 @@ public class Repository {
         Commit cur = HEAD.curCommit;
         while (cur != null){
             System.out.println("===");
-            System.out.println("commit "+Utils.sha1(cur.toString()));
+            System.out.println("commit "+Utils.sha1(cur.getMessage(),cur.getTime()));
             if(cur.getMerged() != null){
-                System.out.println("Merge: "+Utils.sha1(cur.getPre().toString()).substring(0,7)+" "+Utils.sha1(cur.getMerged().toString()).substring(0,7));
+                System.out.println("Merge: "+Utils.sha1(cur.getPre().getMessage(),cur.getPre().getTime()).substring(0,7)
+                        +" "+Utils.sha1(cur.getMerged().getMessage(),cur.getMerged().getTime()).substring(0,7));
             }
             System.out.println("Date: "+cur.getTime());
             System.out.println(cur.getMessage());
@@ -219,9 +222,10 @@ public class Repository {
             File f = join(COMMIT_DIR,s);
             Commit c = Utils.readObject(f,Commit.class);
             System.out.println("===");
-            System.out.println("commit "+Utils.sha1(c.toString()));
+            System.out.println("commit "+Utils.sha1(c.getMessage(),c.getTime()));
             if(c.getMerged() != null){
-                System.out.println("Merge: "+Utils.sha1(c.getPre().toString()).substring(0,7)+" "+Utils.sha1(c.getMerged().toString()).substring(0,7));
+                System.out.println("Merge: "+Utils.sha1(c.getPre().getMessage(),c.getPre().getTime()).substring(0,7)+" "
+                        +Utils.sha1(c.getMerged().getMessage(),c.getMerged().getTime()).substring(0,7));
             }
             DateFormat df = DateFormat.getDateInstance();
             System.out.println("Date: "+df.format(c.getTime()));
@@ -239,7 +243,7 @@ public class Repository {
             Commit c = Utils.readObject(f,Commit.class);
             if(c.getMessage().equals(message)){
                 flag = 1;
-                System.out.println(Utils.sha1(c.toString()));
+                System.out.println(Utils.sha1(c.getMessage(),c.getTime()));
             }
         }
         if(flag == 0){
