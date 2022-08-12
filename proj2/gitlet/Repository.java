@@ -298,7 +298,9 @@ public class Repository {
         else{
             branch b = Utils.readObject(bFile,branch.class);
             Commit c = b.curCommit;
-            String[] files = CWD.list();
+            List<String> files = new ArrayList<>(Utils.plainFilenamesIn(CWD));
+            List<String> rlist = new ArrayList<>(){{add("Makefile");add("pom.xml");}};
+            files.removeAll(rlist);
             for(String n:files){
                 if(isUntracked(n)){
                     System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
@@ -409,12 +411,16 @@ public class Repository {
             System.out.println("No commit with that id exists");
         }else{
             branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
-            for(File cur:CWD.listFiles()){
-                if(isUntracked(cur.getName())){
+            List<String> files = new ArrayList<>(Utils.plainFilenamesIn(CWD));
+            List<String> rlist = new ArrayList<>(){{add("Makefile");add("pom.xml");}};
+            files.removeAll(rlist);
+            for(String n : files){
+                if(isUntracked(n)){
                     System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                     System.exit(0);
                 }
-                Utils.restrictedDelete(cur);
+                File file = join(CWD,n);
+                Utils.restrictedDelete(file);
             }
             Commit des = Utils.readObject(f,Commit.class);
             for(File rFile:des.getFiles()){
