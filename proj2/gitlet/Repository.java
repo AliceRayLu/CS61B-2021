@@ -162,37 +162,49 @@ public class Repository {
         }
     }
 
-    /** check if a file is in a stage area, if in, delete*/
-    public static boolean IsInStage(String name){
+    /** check if a file is in a stage area, when mode is 0:if in, delete;else don't delete*/
+    public static boolean IsInStage(String name,int mode){
         String[] stages = STAGE_DIR.list();
         assert stages != null;
         for(String s:stages){
             if(s.equals(Utils.sha1(name))){
                 File f = join(STAGE_DIR,s);
-                f.delete();
+                if(mode == 0){
+                    f.delete();
+                }
                 return true;
             }
         }
         return false;
     }
 
-    /** check if a file is in current commit, if in, stage for removal. */
-    public static boolean IsInCommit(String name){
+    /** check if a file is in current commit, if mode equals 0: if in, stage for removal. */
+    public static boolean IsInCommit(String name,int mode){
         branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
         Commit cur = HEAD.curCommit;
         for(File f: cur.getFiles()){
             blob b = Utils.readObject(f,blob.class);
             if(b.getName().equals(name)){
-                stage s = new stage(name,false);
-                s.changeBlob(b);
-                File newStage = join(STAGE_DIR,Utils.sha1(name));
-                Utils.writeObject(newStage,s);
-                File rmFile = join(CWD,name);
-                if(rmFile.exists()){
-                    Utils.restrictedDelete(rmFile);
+                if(mode == 0){
+                    stage s = new stage(name,false);
+                    s.changeBlob(b);
+                    File newStage = join(STAGE_DIR,Utils.sha1(name));
+                    Utils.writeObject(newStage,s);
+                    File rmFile = join(CWD,name);
+                    if(rmFile.exists()){
+                        Utils.restrictedDelete(rmFile);
+                    }
                 }
                 return true;
             }
+        }
+        return false;
+    }
+
+    /** find if the file is an untracked file, this method doesn't change anything in gitlet. */
+    public static boolean isUntracked(String name){
+        if(!IsInStage(name,1)&&!IsInCommit(name,1)){
+            return true;
         }
         return false;
     }
@@ -227,8 +239,7 @@ public class Repository {
                 System.out.println("Merge: "+Utils.sha1(c.getPre().getMessage(),c.getPre().getTime()).substring(0,7)+" "
                         +Utils.sha1(c.getMerged().getMessage(),c.getMerged().getTime()).substring(0,7));
             }
-            DateFormat df = DateFormat.getDateInstance();
-            System.out.println("Date: "+df.format(c.getTime()));
+            System.out.println("Date: "+c.getTime());
             System.out.println(c.getMessage());
             System.out.println();
         }
@@ -287,17 +298,20 @@ public class Repository {
         else{
             branch b = Utils.readObject(bFile,branch.class);
             Commit c = b.curCommit;
-            List<String> files = Utils.plainFilenamesIn(CWD);
-            if(files.size() != c.getFiles().size()){System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-            }else{
-                for(File f:c.getFiles()){
-                    blob file = Utils.readObject(f,blob.class);
-                    File cwdFile = join(CWD,file.getName());
-                    Utils.writeContents(cwdFile,file.getContent());
+            String[] files = CWD.list();
+            for(String n:files){
+                if(isUntracked(n)){
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
                 }
-                head.cur = b;
-                Utils.writeObject(Repository.HEAD,head);
             }
+            for(File f:c.getFiles()){
+                blob file = Utils.readObject(f,blob.class);
+                File cwdFile = join(CWD,file.getName());
+                Utils.writeContents(cwdFile,file.getContent());
+            }
+            head.cur = b;
+            Utils.writeObject(Repository.HEAD,head);
         }
     }
 
@@ -315,7 +329,6 @@ public class Repository {
             }
         }
         System.out.println();
-
         System.out.println("=== Staged Files ===");
         String[] stages = STAGE_DIR.list();
         List<String> added = new ArrayList<>();
@@ -396,25 +409,24 @@ public class Repository {
             System.out.println("No commit with that id exists");
         }else{
             branch HEAD = Utils.readObject(Repository.HEAD,branch.class);
-            Commit curCommit = HEAD.curCommit;
-            if(curCommit.getFiles().size() != CWD.list().length){
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-            }else{
-                for(File cur:CWD.listFiles()){
-                    Utils.restrictedDelete(cur);
+            for(File cur:CWD.listFiles()){
+                if(isUntracked(cur.getName())){
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
                 }
-                Commit des = Utils.readObject(f,Commit.class);
-                for(File rFile:des.getFiles()){
-                    blob file = Utils.readObject(rFile,blob.class);
-                    Repository.checkoutFile(completeID, file.getName());
-                }
-                branch curBranch = HEAD.cur;
-                curBranch.curCommit = des;
-                HEAD.curCommit = des;
-                File curB = join(BRANCH_DIR,curBranch.name());
-                Utils.writeObject(curB,curBranch);
-                Utils.writeObject(Repository.HEAD,HEAD);
+                Utils.restrictedDelete(cur);
             }
+            Commit des = Utils.readObject(f,Commit.class);
+            for(File rFile:des.getFiles()){
+                blob file = Utils.readObject(rFile,blob.class);
+                Repository.checkoutFile(completeID, file.getName());
+            }
+            branch curBranch = HEAD.cur;
+            curBranch.curCommit = des;
+            HEAD.curCommit = des;
+            File curB = join(BRANCH_DIR,curBranch.name());
+            Utils.writeObject(curB,curBranch);
+            Utils.writeObject(Repository.HEAD,HEAD);
         }
     }
 
