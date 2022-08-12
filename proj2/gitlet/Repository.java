@@ -254,7 +254,7 @@ public class Repository {
             Commit c = Utils.readObject(f,Commit.class);
             if(c.getMessage().equals(message)){
                 flag = 1;
-                System.out.println(Utils.sha1(c.getMessage(),c.getTime()));
+                System.out.println(s);
             }
         }
         if(flag == 0){
@@ -307,12 +307,16 @@ public class Repository {
                     System.exit(0);
                 }
             }
+            for(String n:files){
+                Utils.restrictedDelete(join(CWD,n));
+            }
             for(File f:c.getFiles()){
                 blob file = Utils.readObject(f,blob.class);
                 File cwdFile = join(CWD,file.getName());
                 Utils.writeContents(cwdFile,file.getContent());
             }
             head.cur = b;
+            head.curCommit = c;
             Utils.writeObject(Repository.HEAD,head);
         }
     }
