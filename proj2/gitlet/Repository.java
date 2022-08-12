@@ -318,29 +318,27 @@ public class Repository {
 
         System.out.println("=== Staged Files ===");
         String[] stages = STAGE_DIR.list();
-        String[] added = new String[100],removed = new String[100];
-        int addSize = 0,rmSize = 0;
+        List<String> added = new ArrayList<>();
+        List<String> removed = new ArrayList<>();
         if(stages.length != 0){
             for(String f:stages){
                 File stageFile = join(STAGE_DIR,f);
                 stage s = Utils.readObject(stageFile,stage.class);
                 if(s.isForAdd()){
-                    added[addSize] = s.getFileName();
-                    addSize++;
+                    added.add(s.getFileName());
                 }else{
-                    removed[rmSize] = s.getFileName();
-                    rmSize++;
+                    removed.add(s.getFileName());
                 }
             }
-            Arrays.sort(added);
-            Arrays.sort(removed);
+            Collections.sort(added);
+            Collections.sort(removed);
             for(String name:added){
                 System.out.println(name);
             }
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        if(rmSize != 0){
+        if(removed.size() != 0){
             for(String name:removed){
                 System.out.println(name);
             }
@@ -430,9 +428,8 @@ public class Repository {
             Repository.checkoutBranch(bname);
             System.out.println("Current branch fast-forwarded.");
         }else{
-
+            //TODO: finish merge
         }
     }
-    // TODO: fill in the rest of this class.
 
 }

@@ -51,7 +51,7 @@ public class Main {
                     }else if(!Repository.isInitialized()){
                         System.out.println("Not in an initialized Gitlet directory.");
                     }else{
-                        if(!Repository.IsInStage(args[1]) || !Repository.IsInCommit(args[1])){
+                        if(!Repository.IsInStage(args[1]) && !Repository.IsInCommit(args[1])){
                             System.out.println("No reason to remove the file.");
                         }
                     }
